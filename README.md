@@ -1,7 +1,6 @@
 # Arte & Personalidade 🎨
 
 Landing Page criada para uma loja de presentes personalizados. O foco do projeto foi criar uma interface bonita e funcional utilizando apenas **HTML, Tailwind CSS e JavaScript Puro**, sem frameworks pesados.
-https://elisangelajesus.github.io/LandingPage-ArtePersonalidade/
 
 ### ✨ O que o projeto faz?
 
