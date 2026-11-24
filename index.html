@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arte & Personalidade - Mimos Exclusivos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap");
+
+      body {
+        font-family: "Poppins", sans-serif;
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+        background-color: #fff;
+      }
+      .serif-font {
+        font-family: "Playfair Display", serif;
+      }
+
+      /* SESSÃO 1: Banner Matte Centralizado */
+      .hero-section {
+        height: 100vh;
+        position: relative;
+        background: url("https://images.unsplash.com/photo-1456735190827-d1262f71b8a3?w=1200")
+          no-repeat center center;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .hero-matte-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(45, 30, 30, 0.6);
+        backdrop-filter: blur(2px);
+      }
+
+      /* Carrinho Lateral */
+      #cart-modal {
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #cart-modal.open {
+        transform: translateX(0);
+      }
+      #cart-overlay {
+        display: none;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 60;
+      }
+      #cart-overlay.open {
+        display: block;
+      }
+
+      /* MODAL DE ZOOM (Lightbox) */
+      #zoom-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.85);
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      #zoom-modal.open {
+        display: flex;
+      }
+
+      /* Animações */
+      .cart-bump {
+        animation: bump 0.4s ease-out;
+      }
+      @keyframes bump {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.4);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .badge-promo {
+        animation: pulse 1.5s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      /* Estilo dos Cards */
+      .product-card {
+        border-radius: 40px;
+        transition: transform 0.3s ease;
+        background: white;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        width: 200px;
+      }
+      .product-card:hover {
+        transform: translateY(-8px);
+      }
+      .img-square-container {
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 30px;
+        background-color: #fcf4f4;
+        cursor: zoom-in;
+      }
+      .img-square-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .old-price {
+        color: #bbb;
+        text-decoration: line-through;
+        font-size: 11px;
+        line-height: 1;
+      }
+      .current-price {
+        color: #b45309;
+        font-weight: 800;
+        font-size: 17px;
+      }
+
+      .promo-tag {
+        background-color: #f472b6;
+        color: white;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 4px 10px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        border-radius: 0 0 0 12px;
+        z-index: 10;
+      }
+
+      /* Menu de Categorias Fino */
+      .category-nav-bar {
+        background-color: #fcfcfc;
+        border-bottom: 1px solid #f1f1f1;
+        padding: 0.3rem 0;
+      }
+      .cat-link {
+        transition: all 0.3s;
+        border-radius: 999px;
+        padding: 4px 15px;
+        font-weight: 600;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+      .cat-link.active {
+        background-color: #db2777;
+        color: white;
+      }
+
+      .view-section {
+        display: none;
+      }
+      .view-section.active {
+        display: block;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="text-gray-800">
+    <div
+      id="cart-overlay"
+      onclick="toggleCart(false)"
+      class="fixed inset-0 z-[60]"
+    ></div>
+
+    <!-- NAVBAR PRINCIPAL -->
+    <nav
+      class="bg-white sticky top-0 z-50 py-3 shadow-sm border-b border-pink-50"
+    >
+      <div class="container mx-auto px-4 flex justify-between items-center">
+        <div
+          class="flex items-center gap-2 cursor-pointer"
+          onclick="navigate('home')"
+        >
+          <i class="fas fa-heart text-pink-500 text-xl"></i>
+          <h1
+            class="text-xl font-black text-gray-800 tracking-tighter uppercase serif-font"
+          >
+            Arte<span class="text-pink-500">&</span>Personalidade
+          </h1>
+        </div>
+        <div
+          class="hidden md:flex items-center gap-8 font-bold text-gray-500 uppercase text-[11px] tracking-widest"
+        >
+          <a
+            href="javascript:void(0)"
+            onclick="navigate('home')"
+            class="hover:text-pink-600 transition text-pink-600"
+            >Início</a
+          >
+          <a
+            href="javascript:void(0)"
+            onclick="navigate('catalogo')"
+            class="hover:text-pink-600 transition"
+            >Coleções</a
+          >
+          <a
+            href="javascript:void(0)"
+            onclick="navigate('home', null, 'about-section')"
+            class="hover:text-pink-600 transition"
+            >Sobre Mim</a
+          >
+        </div>
+        <button
+          onclick="toggleCart(true)"
+          id="basket-btn"
+          class="relative bg-gray-800 text-white p-2.5 rounded-xl hover:bg-pink-600 transition"
+        >
+          <i class="fas fa-shopping-bag"></i>
+          <span
+            id="cart-count"
+            class="absolute -top-2 -right-2 bg-pink-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-white"
+            >0</span
+          >
+        </button>
+      </div>
+    </nav>
+
+    <main>
+      <!-- SESSÃO 1: HOME -->
+      <section id="view-home" class="view-section active">
+        <div class="hero-section text-white">
+          <div class="hero-matte-overlay"></div>
+          <div class="container mx-auto px-4 relative z-10 text-center">
+            <div class="max-w-4xl mx-auto">
+              <h2
+                class="text-5xl md:text-8xl font-black text-white italic uppercase serif-font tracking-tighter leading-tight"
+              >
+                Arte com <span class="text-pink-400">Alma</span> & <br />
+                <span class="text-white">Personalidade</span>
+              </h2>
+              <p class="text-xl text-gray-200 mt-6 mb-10 italic font-light">
+                Canecas, agendas e mimos feitos à mão para eternizar seus
+                momentos mais especiais.
+              </p>
+              <button
+                onclick="navigate('catalogo')"
+                class="bg-pink-500 hover:bg-pink-600 text-white px-12 py-4 rounded-full font-black text-sm transition-all transform hover:scale-105 uppercase tracking-widest"
+              >
+                VER CATÁLOGO
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SESSÃO 2: OFERTAS (Centralizadas 3 por linha) -->
+        <div class="bg-[#fff9f9] py-20 px-4">
+          <div class="container mx-auto text-center">
+            <h3
+              class="text-3xl font-black text-gray-900 mb-12 italic uppercase tracking-tighter decoration-pink-500 underline underline-offset-8 inline-block"
+            >
+              💝 Presentes com Desconto
+            </h3>
+            <div
+              id="home-offers-grid"
+              class="flex flex-wrap justify-center gap-10"
+            ></div>
+          </div>
+        </div>
+
+        <!-- SESSÃO 3: VITRINE (Alinhada Esquerda 6 por linha) -->
+        <div class="bg-white py-20 px-4">
+          <div class="container mx-auto text-left">
+            <h3
+              class="text-3xl font-black text-gray-900 mb-12 italic uppercase tracking-widest border-l-4 border-pink-500 pl-4"
+            >
+              Os Queridinhos
+            </h3>
+            <div
+              id="home-products-grid"
+              class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-left"
+            ></div>
+            <div class="mt-14 text-center">
+              <button
+                onclick="navigate('catalogo')"
+                class="text-pink-600 font-bold hover:underline uppercase text-sm tracking-widest italic"
+              >
+                VER TODA A COLEÇÃO →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SESSÃO 4: SOBRE NÓS -->
+        <section id="about-section" class="py-24 bg-gray-50 text-left">
+          <div class="container mx-auto px-4">
+            <div
+              class="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-12 bg-white p-8 md:p-14 rounded-[70px] shadow-sm border border-pink-100 text-left"
+            >
+              <div class="md:w-1/3">
+                <div class="img-square-container shadow-2xl">
+                  <img
+                    src="foto-about.jpg"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+              <div class="md:w-2/3">
+                <h4
+                  class="text-pink-500 font-bold uppercase text-[10px] tracking-[0.4em] mb-4 italic"
+                >
+                  Meu Propósito
+                </h4>
+                <h2
+                  class="text-4xl font-black text-gray-900 serif-font mb-6 uppercase leading-tight"
+                >
+                  FEITO COM CARINHO
+                </h2>
+                <p class="text-gray-500 italic text-sm leading-relaxed mb-4">
+                  Olá, eu sou a mente criativa por trás da Arte & Personalidade.
+                  Tudo começou como um hobby e se transformou na missão de criar
+                  presentes que contam histórias.
+                </p>
+                <p class="text-gray-500 italic text-sm leading-relaxed">
+                  Cada caneca, cada agenda e cada marca-página é produzido de
+                  forma única, garantindo exclusividade e amor.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- VIEW: CATALOGO -->
+      <section id="view-catalogo" class="view-section">
+        <div
+          class="category-nav-bar sticky top-[62px] z-40 shadow-sm text-left"
+        >
+          <div
+            class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4"
+          >
+            <nav
+              id="cat-nav-horizontal"
+              class="flex gap-2 overflow-x-auto no-scrollbar py-1"
+            >
+              <button onclick="renderCatalog('todos')" class="cat-link active">
+                Todos
+              </button>
+              <button onclick="renderCatalog('Canecas')" class="cat-link">
+                Canecas
+              </button>
+              <button onclick="renderCatalog('Agendas')" class="cat-link">
+                Agendas
+              </button>
+              <button onclick="renderCatalog('Mimos')" class="cat-link">
+                Mimos
+              </button>
+            </nav>
+            <div class="relative w-full md:w-64" id="search-container">
+              <input
+                type="text"
+                id="product-search"
+                oninput="searchProducts()"
+                placeholder="O que você procura?"
+                class="w-full p-2 rounded-full border border-gray-200 outline-none text-xs pl-8 focus:ring-1 ring-pink-400"
+              />
+              <i
+                class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-[10px]"
+              ></i>
+            </div>
+          </div>
+        </div>
+        <div class="container mx-auto py-12 px-4 min-h-screen text-left">
+          <h2
+            id="catalog-title"
+            class="text-3xl font-black text-gray-900 mb-10 italic uppercase tracking-tighter decoration-pink-500 underline underline-offset-8"
+          >
+            Minhas Coleções
+          </h2>
+          <div
+            id="catalog-grid"
+            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
+          ></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- SESSÃO 5: RODAPÉ GRAFITE -->
+    <footer class="bg-[#1a1a1a] text-white py-14 px-4">
+      <div
+        class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-16 text-center md:text-left"
+      >
+        <div>
+          <h3
+            class="text-xl font-black text-pink-500 uppercase serif-font mb-4 italic"
+          >
+            Arte & Personalidade ✨
+          </h3>
+          <p class="text-gray-400 italic text-sm">
+            Transformando sonhos em presentes exclusivos. Entrega para todo o
+            Brasil.
+          </p>
+          <div
+            class="flex gap-6 mt-8 justify-center md:justify-start text-xl text-white"
+          >
+            <i
+              class="fab fa-instagram hover:text-pink-500 cursor-pointer transition"
+            ></i>
+            <i
+              class="fab fa-facebook hover:text-pink-500 cursor-pointer transition"
+            ></i>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <h4
+            class="text-white font-bold uppercase text-[10px] tracking-[0.3em] mb-4 italic"
+          >
+            Contato
+          </h4>
+          <p class="text-gray-400 italic text-sm">
+            📍 São Paulo - Atendimento Online
+          </p>
+          <p class="text-gray-400 italic text-sm">📞 (11) 98405-9101</p>
+          <p class="text-gray-400 italic text-sm">
+            © Todos os direitos reservados.<br />
+            Desenvolvido por EAS Web Studo.
+          </p>
+        </div>
+        <div class="space-y-4">
+          <h4
+            class="text-white font-bold uppercase text-[10px] tracking-[0.3em] mb-4 italic"
+          >
+            Dúvidas?
+          </h4>
+          <p class="text-gray-400 italic text-sm text-[10px]">
+            Peça pelo WhatsApp e personalize cada detalhe!
+          </p>
+          <p class="text-pink-500 font-black uppercase text-xs">
+            Exclusividade e Qualidade.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- MODAL DE ZOOM (SAIR NO X OU CLICANDO FORA) -->
+    <div id="zoom-modal" onclick="closeZoom()">
+      <div
+        class="bg-white rounded-[40px] shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col md:flex-row relative"
+        onclick="event.stopPropagation()"
+      >
+        <button
+          onclick="closeZoom()"
+          class="absolute top-5 right-5 text-gray-400 text-3xl hover:text-pink-600 transition"
+        >
+          &times;
+        </button>
+        <div class="md:w-1/2 aspect-square">
+          <img id="zoom-img" src="" class="w-full h-full object-cover" />
+        </div>
+        <div class="md:w-1/2 p-10 flex flex-col justify-center text-left">
+          <h2
+            id="zoom-title"
+            class="text-3xl font-black serif-font text-gray-900 mb-4 uppercase italic leading-tight"
+          ></h2>
+          <p id="zoom-price" class="text-2xl font-black text-pink-600 mb-6"></p>
+          <p class="text-gray-500 italic text-sm mb-10 leading-relaxed">
+            Produção artesanal com materiais de alta qualidade. Cada item é
+            único e feito sob encomenda para garantir o máximo de carinho em
+            cada detalhe.
+          </p>
+          <button
+            id="zoom-add-btn"
+            class="w-full bg-gray-900 text-white font-black py-5 rounded-2xl hover:bg-pink-600 transition shadow-xl uppercase text-xs tracking-widest italic"
+          >
+            Adicionar à Sacola
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHATSAPP FLOATING -->
+    <a
+      href="https://wa.me/5511984059101"
+      target="_blank"
+      class="fixed bottom-6 right-6 bg-green-500 text-white w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-2xl z-40 hover:scale-110 transition-transform border-4 border-white"
+      ><i class="fab fa-whatsapp"></i
+    ></a>
+
+    <!-- CARRINHO -->
+    <div
+      id="cart-modal"
+      class="fixed top-0 right-0 h-full w-full md:w-[480px] bg-white z-[70] shadow-2xl flex flex-col text-left"
+    >
+      <div class="p-6 bg-gray-900 text-white flex justify-between items-center">
+        <h2
+          class="text-sm font-black uppercase tracking-widest italic text-pink-500"
+        >
+          Sacola de Pedidos
+        </h2>
+        <button
+          onclick="toggleCart(false)"
+          class="text-2xl hover:text-pink-500 transition"
+        >
+          &times;
+        </button>
+      </div>
+      <div
+        id="cart-items"
+        class="flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50 text-[11px]"
+      ></div>
+      <div class="p-6 border-t bg-white space-y-4">
+        <div
+          class="flex justify-between text-xl font-black text-pink-600 mb-2 uppercase italic"
+        >
+          <span>TOTAL:</span><span id="cart-total">R$ 0,00</span>
+        </div>
+        <div id="cart-step-1">
+          <button
+            onclick="goToDelivery()"
+            class="w-full bg-gray-900 text-white font-black py-4 rounded-2xl hover:bg-black transition shadow-xl text-xs uppercase tracking-widest italic"
+          >
+            Avançar para Entrega
+          </button>
+        </div>
+        <div id="cart-step-2" class="hidden animate-fade-in space-y-3">
+          <div
+            class="bg-pink-50 p-5 rounded-[30px] border border-pink-100 space-y-3 text-[11px]"
+          >
+            <div class="flex justify-between items-center">
+              <h4
+                class="font-black text-gray-900 uppercase italic text-red-600"
+              >
+                Dados de Entrega
+              </h4>
+              <button
+                onclick="backToCart()"
+                class="text-red-600 font-bold underline"
+              >
+                Revisar Lista
+              </button>
+            </div>
+            <input
+              type="text"
+              id="cust-nome"
+              placeholder="Seu Nome"
+              class="w-full p-2.5 rounded-xl border outline-none"
+            />
+            <input
+              type="text"
+              id="cust-endereco"
+              placeholder="Endereço Completo"
+              class="w-full p-2.5 rounded-xl border outline-none"
+            />
+            <div class="pt-2">
+              <select
+                id="cust-entrega"
+                onchange="updateTotalDisplay()"
+                class="w-full p-2.5 rounded-xl border outline-none bg-white font-bold text-gray-700"
+              >
+                <option value="15.00">📦 Sedex - R$ 15,00</option>
+                <option value="0.00">📍 Retirada Grátis</option>
+              </select>
+            </div>
+            <div class="pt-2">
+              <select
+                id="cust-pagamento"
+                onchange="toggleTroco()"
+                class="w-full p-2.5 rounded-xl border outline-none bg-white font-bold text-gray-700"
+              >
+                <option value="Pix">💎 Pix (Chave no WhatsApp)</option>
+                <option value="Cartão">💳 Cartão (Link no WhatsApp)</option>
+                <option value="Dinheiro">💵 Dinheiro (Troco)</option></select
+              ><input
+                type="text"
+                id="cust-troco"
+                placeholder="Troco para quanto?"
+                class="hidden w-full mt-2 p-2 rounded-xl border border-pink-200 outline-none font-bold text-pink-600"
+              />
+            </div>
+          </div>
+          <button
+            onclick="startSecureProcess()"
+            class="w-full bg-green-500 text-white font-black py-4 rounded-2xl hover:bg-green-600 shadow-xl text-xs uppercase tracking-widest italic flex items-center justify-center gap-2"
+          >
+            <i class="fas fa-lock"></i> Finalizar Compra Segura
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE SEGURANÇA -->
+    <div
+      id="secure-modal"
+      class="fixed inset-0 z-[100] bg-black/95 hidden flex flex-col items-center justify-center text-white text-center"
+    >
+      <div
+        class="w-20 h-20 border-4 border-pink-600 border-t-white rounded-full animate-spin mb-8"
+      ></div>
+      <h2
+        id="secure-status"
+        class="text-2xl font-black uppercase tracking-tighter mb-2 italic"
+      >
+        Confirmando Pedido...
+      </h2>
+      <p class="text-gray-500 italic text-sm">Sincronização Segura Ativada.</p>
+    </div>
+
+    <script>
+      const CHAVE_PIX = "artesa-mimos-pix@delivery.com.br";
+      const productsDB = [
+        {
+          id: 1,
+          nome: "Agenda 2026 Floral",
+          preco: 45.0,
+          oldPrice: 59.9,
+          categoria: "Agendas",
+          promo: true,
+          img: "https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=400",
+        },
+        {
+          id: 2,
+          nome: "Caneca Porcelana Premium",
+          preco: 35.0,
+          oldPrice: 42.0,
+          categoria: "Canecas",
+          promo: true,
+          img: "caneca-porcelana-premium.jpg",
+        },
+        {
+          id: 3,
+          nome: "Kit Marca-Páginas Luxo",
+          preco: 18.0,
+          oldPrice: 25.0,
+          categoria: "Mimos",
+          promo: true,
+          img: "kit2-marca-paginas-luxo.jpg",
+        },
+        {
+          id: 4,
+          nome: "Planner de Mesa Minimal",
+          preco: 29.9,
+          oldPrice: 38.0,
+          categoria: "Agendas",
+          promo: true,
+          img: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400",
+        },
+        {
+          id: 5,
+          nome: "Caneca Café & Arte",
+          preco: 38.0,
+          categoria: "Canecas",
+          promo: false,
+          img: "caneca1-marrom-cafe.jpg",
+        },
+        {
+          id: 6,
+          nome: "Vela Aromática Artesanal",
+          preco: 12.0,
+          categoria: "Mimos",
+          promo: false,
+          img: "Lembrancinha-Vela-Aromática.jpg",
+        },
+      ];
+
+      let cart = [];
+
+      function navigate(view, cat = null, anchor = null) {
+        document
+          .querySelectorAll(".view-section")
+          .forEach((v) => v.classList.remove("active"));
+        document.getElementById("view-" + view).classList.add("active");
+        if (view === "home") renderHome();
+        if (view === "catalogo") renderCatalog(cat || "todos");
+        if (anchor) document.getElementById(anchor).scrollIntoView();
+        else window.scrollTo(0, 0);
+      }
+
+      function createCard(p, showPromo) {
+        let badge = "";
+        let priceHTML = `<div class="flex flex-col items-start mt-2"><span class="current-price">R$ ${p.preco
+          .toFixed(2)
+          .replace(".", ",")}</span></div>`;
+        if (p.oldPrice && p.oldPrice > p.preco) {
+          const discount = Math.round(
+            ((p.oldPrice - p.preco) / p.oldPrice) * 100
+          );
+          badge = showPromo
+            ? `<div class="promo-tag">${discount}% OFF</div>`
+            : "";
+          priceHTML = `<div class="flex flex-col items-start mt-2"><span class="old-price">R$ ${p.oldPrice
+            .toFixed(2)
+            .replace(".", ",")}</span><span class="current-price">R$ ${p.preco
+            .toFixed(2)
+            .replace(".", ",")}</span></div>`;
+        }
+        return `<div class="product-card relative p-6 flex flex-col h-full" onclick="openZoom(${p.id})">${badge}<div class="img-square-container mb-6 shadow-inner"><img src="${p.img}" alt="${p.nome}"></div><h4 class="font-bold text-gray-700 text-[11px] leading-tight flex-grow mb-1 italic uppercase tracking-tighter">${p.nome}</h4><div class="flex items-end justify-between w-full" onclick="event.stopPropagation()">${priceHTML}<button onclick="addToCart(${p.id})" class="bg-gray-800 text-white w-9 h-9 rounded-xl flex items-center justify-center hover:bg-pink-500 transition shadow-md"><i class="fas fa-shopping-cart text-xs"></i></button></div></div>`;
+      }
+
+      function openZoom(id) {
+        const p = productsDB.find((prod) => prod.id === id);
+        document.getElementById("zoom-img").src = p.img;
+        document.getElementById("zoom-title").innerText = p.nome;
+        document.getElementById("zoom-price").innerText = `R$ ${p.preco
+          .toFixed(2)
+          .replace(".", ",")}`;
+        document.getElementById("zoom-add-btn").onclick = () => {
+          addToCart(id);
+          closeZoom();
+        };
+        document.getElementById("zoom-modal").classList.add("open");
+        document.getElementById("zoom-overlay").classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeZoom() {
+        document.getElementById("zoom-modal").classList.remove("open");
+        document.getElementById("zoom-overlay").classList.remove("open");
+        document.body.style.overflow = "auto";
+      }
+
+      function renderHome() {
+        document.getElementById("home-offers-grid").innerHTML = productsDB
+          .filter((p) => p.promo)
+          .slice(0, 3)
+          .map((p) => createCard(p, true))
+          .join("");
+        document.getElementById("home-products-grid").innerHTML = productsDB
+          .slice(0, 6)
+          .map((p) => createCard(p, false))
+          .join("");
+      }
+
+      function renderCatalog(filter) {
+        const grid = document.getElementById("catalog-grid");
+        document.querySelectorAll(".cat-link").forEach((link) => {
+          link.classList.toggle(
+            "active",
+            link.innerText.toLowerCase().includes(filter.toLowerCase()) ||
+              (filter === "todos" && link.innerText === "Todos")
+          );
+        });
+        const filtered =
+          filter === "todos"
+            ? productsDB
+            : productsDB.filter((p) =>
+                p.categoria.toLowerCase().includes(filter.toLowerCase())
+              );
+        grid.innerHTML = filtered.map((p) => createCard(p, false)).join("");
+      }
+
+      function searchProducts() {
+        const query = document
+          .getElementById("product-search")
+          .value.toLowerCase();
+        document.getElementById("catalog-grid").innerHTML = productsDB
+          .filter((p) => p.nome.toLowerCase().includes(query))
+          .map((p) => createCard(p, false))
+          .join("");
+      }
+
+      function toggleCart(open) {
+        document.getElementById("cart-modal").classList.toggle("open", open);
+        document.getElementById("cart-overlay").classList.toggle("open", open);
+        document.body.style.overflow = open ? "hidden" : "auto";
+        if (!open) backToCart();
+      }
+
+      function addToCart(id) {
+        const product = productsDB.find((p) => p.id === id);
+        const inCart = cart.find((i) => i.id === id);
+        if (inCart) inCart.qtd++;
+        else cart.push({ ...product, qtd: 1 });
+        updateTotalDisplay();
+        const badge = document.getElementById("cart-count");
+        badge.classList.remove("cart-bump");
+        void badge.offsetWidth;
+        badge.classList.add("cart-bump");
+      }
+
+      function updateTotalDisplay() {
+        const container = document.getElementById("cart-items");
+        container.innerHTML =
+          cart.length === 0
+            ? '<div class="text-center py-20 text-gray-400 font-bold uppercase opacity-50 text-xs italic">Seu cesto está vazio</div>'
+            : "";
+        let itemsVal = 0,
+          count = 0;
+        cart.forEach((item) => {
+          itemsVal += item.preco * item.qtd;
+          count += item.qtd;
+          container.innerHTML += `<div class="flex items-center gap-4 bg-white p-3 rounded-[30px] border shadow-sm"><img src="${
+            item.img
+          }" class="w-12 h-12 object-cover rounded-xl"><div class="flex-grow"><h5 class="font-bold text-[10px] text-gray-700 uppercase italic">${
+            item.nome
+          }</h5><p class="text-pink-600 font-black text-xs">R$ ${(
+            item.preco * item.qtd
+          )
+            .toFixed(2)
+            .replace(
+              ".",
+              ","
+            )}</p><div class="flex items-center gap-4 mt-2"><div class="flex items-center bg-gray-100 rounded-xl px-2"><button onclick="alterQty(${
+            item.id
+          }, -1)" class="w-6 h-6 font-black text-gray-900">-</button><span class="w-6 text-center text-[10px] font-bold">${
+            item.qtd
+          }</span><button onclick="alterQty(${
+            item.id
+          }, 1)" class="w-6 h-6 font-black text-gray-900">+</button></div><button onclick="removeFromCart(${
+            item.id
+          })" class="text-red-400 hover:text-red-600 transition ml-auto"><i class="fas fa-trash-alt text-[10px]"></i></button></div></div></div>`;
+        });
+        const deliveryFee =
+          parseFloat(document.getElementById("cust-entrega").value) || 0;
+        document.getElementById("cart-total").innerText = `R$ ${(
+          itemsVal + deliveryFee
+        )
+          .toFixed(2)
+          .replace(".", ",")}`;
+        document.getElementById("cart-count").innerText = count;
+      }
+
+      function alterQty(id, delta) {
+        const item = cart.find((i) => i.id === id);
+        item.qtd += delta;
+        if (item.qtd <= 0) removeFromCart(id);
+        updateTotalDisplay();
+      }
+      function removeFromCart(id) {
+        cart = cart.filter((i) => i.id !== id);
+        updateTotalDisplay();
+      }
+      function goToDelivery() {
+        if (cart.length === 0) return alert("Cesto vazio!");
+        document.getElementById("cart-step-1").classList.add("hidden");
+        document.getElementById("cart-step-2").classList.remove("hidden");
+      }
+      function backToCart() {
+        document.getElementById("cart-step-1").classList.remove("hidden");
+        document.getElementById("cart-step-2").classList.add("hidden");
+      }
+      function toggleTroco() {
+        const val = document.getElementById("cust-pagamento").value;
+        document
+          .getElementById("cust-troco")
+          .classList.toggle("hidden", val !== "Dinheiro");
+      }
+
+      function startSecureProcess() {
+        const nome = document.getElementById("cust-nome").value;
+        const endereco = document.getElementById("cust-endereco").value;
+        if (!nome || !endereco) return alert("Preencha nome e endereço!");
+        document.getElementById("secure-modal").classList.remove("hidden");
+        setTimeout(() => {
+          document.getElementById("secure-status").innerHTML =
+            '<i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i><br>Pedido Confirmado!';
+          setTimeout(() => {
+            document.getElementById("secure-modal").classList.add("hidden");
+            finishOrder();
+          }, 1200);
+        }, 1500);
+      }
+
+      function finishOrder() {
+        const nome = document.getElementById("cust-nome").value;
+        const endereco = document.getElementById("cust-endereco").value;
+        const pag = document.getElementById("cust-pagamento").value;
+        const troco = document.getElementById("cust-troco").value;
+        const entregaOption = document.getElementById("cust-entrega");
+        const entregaNome =
+          entregaOption.options[entregaOption.selectedIndex].text;
+
+        let msg = `*🛍️ NOVO PEDIDO - ARTE & PERSONALIDADE*\n\n👤 *Cliente:* ${nome}\n📍 *Endereço:* ${endereco}\n🚚 *Entrega:* ${entregaNome}\n\n`;
+        if (pag === "Pix")
+          msg += `💳 *Pagamento:* Pix\n🔑 *CHAVE PIX:* ${CHAVE_PIX}\n(Favor enviar comprovante)\n\n`;
+        else if (pag === "Cartão")
+          msg += `💳 *Pagamento:* Cartão\n🔗 *Aguardando link de pagamento*\n\n`;
+        else
+          msg += `💳 *Pagamento:* Dinheiro\n💵 *Troco para:* ${
+            troco || "Não precisa"
+          }\n\n`;
+
+        msg += `*ITENS DO PEDIDO:*\n`;
+        cart.forEach(
+          (i) =>
+            (msg += `✨ ${i.qtd}x ${i.nome} - R$ ${(i.preco * i.qtd).toFixed(
+              2
+            )}\n`)
+        );
+        msg += `\n*💰 TOTAL FINAL: ${
+          document.getElementById("cart-total").innerText
+        }*`;
+        window.open(
+          `https://wa.me/5511984059101?text=${encodeURIComponent(msg)}`
+        );
+      }
+
+      window.onload = () => {
+        renderHome();
+      };
+    </script>
+  </body>
+</html>
