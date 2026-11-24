@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
@@ -674,7 +674,7 @@
           preco: 12.0,
           categoria: "Mimos",
           promo: false,
-          img: "Lembrancinha-Vela-Aromática.jpg",
+          img: "lembrancinha-vela-aromatica.jpg",
         },
       ];
 
@@ -698,7 +698,7 @@
           .replace(".", ",")}</span></div>`;
         if (p.oldPrice && p.oldPrice > p.preco) {
           const discount = Math.round(
-            ((p.oldPrice - p.preco) / p.oldPrice) * 100
+            ((p.oldPrice - p.preco) / p.oldPrice) * 100,
           );
           badge = showPromo
             ? `<div class="promo-tag">${discount}% OFF</div>`
@@ -752,14 +752,14 @@
           link.classList.toggle(
             "active",
             link.innerText.toLowerCase().includes(filter.toLowerCase()) ||
-              (filter === "todos" && link.innerText === "Todos")
+              (filter === "todos" && link.innerText === "Todos"),
           );
         });
         const filtered =
           filter === "todos"
             ? productsDB
             : productsDB.filter((p) =>
-                p.categoria.toLowerCase().includes(filter.toLowerCase())
+                p.categoria.toLowerCase().includes(filter.toLowerCase()),
               );
         grid.innerHTML = filtered.map((p) => createCard(p, false)).join("");
       }
@@ -814,7 +814,7 @@
             .toFixed(2)
             .replace(
               ".",
-              ","
+              ",",
             )}</p><div class="flex items-center gap-4 mt-2"><div class="flex items-center bg-gray-100 rounded-xl px-2"><button onclick="alterQty(${
             item.id
           }, -1)" class="w-6 h-6 font-black text-gray-900">-</button><span class="w-6 text-center text-[10px] font-bold">${
@@ -899,14 +899,14 @@
         cart.forEach(
           (i) =>
             (msg += `✨ ${i.qtd}x ${i.nome} - R$ ${(i.preco * i.qtd).toFixed(
-              2
-            )}\n`)
+              2,
+            )}\n`),
         );
         msg += `\n*💰 TOTAL FINAL: ${
           document.getElementById("cart-total").innerText
         }*`;
         window.open(
-          `https://wa.me/5511984059101?text=${encodeURIComponent(msg)}`
+          `https://wa.me/5511984059101?text=${encodeURIComponent(msg)}`,
         );
       }
 
